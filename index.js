@@ -46,13 +46,27 @@ ntsl.run = function(params, callback){
 
     request(url.toString() + encodedString, callback);
 } 
+ntsl.cycle = function(ws, count=3000){
+    if(ws.programID != null){
+        ntsl.run({action: "execute", id: ws.programID, cycles: count}, (error, response, body)=>{
+            if(body == "0"){ // Program died.
+                ws.programID = null;
+                ws.send(JSON.stringify({action: "update_terminal", body: "<font color=red>Error in program.</font>"}))
+            }else{
+                ntsl.run({action: "get_buffered", id: ws.programID}, (error, response, body)=>{
+                    ws.send(JSON.stringify({action: "update_terminal", body: body}));
+                });
+            }
+        });
+    }
+}
 
 // HTTPS SERVER
 
 var httpsServer = https.createServer(options, function (req, response) {
     var parsedPath = path.join('www/', path.normalize(req.url));
     if(req.url == "/")
-        parsedPath = "www\\interpreter.html"
+        parsedPath = path.join("www","interpreter.html")
     if(!parsedPath.match(`www\\${path.sep}`))
         parsedPath = "www/404.html";
     
@@ -74,7 +88,7 @@ var httpsServer = https.createServer(options, function (req, response) {
 
 // WEBSOCKET
 
-var wss = new WebSocket.Server({port: 80})
+var wss = new WebSocket.Server({port: 4132})
 
 wss.on('connection', function (ws){
 
@@ -94,18 +108,7 @@ wss.on('connection', function (ws){
     });
     ws.on('pong', function(){
         ws.isAlive = true;
-        if(ws.programID != null){
-            ntsl.run({action: "execute", id: ws.programID, cycles: 30000}, (error, response, body)=>{
-                if(body == "0"){ // Program died.
-                    ws.programID = null;
-                    ws.send(JSON.stringify({action: "update_terminal", body: "<font color=red>Error in program.</font>"}))
-                }else{
-                    ntsl.run({action: "get_buffered", id: ws.programID}, (error, response, body)=>{
-                        ws.send(JSON.stringify({action: "update_terminal", body: body}));
-                    });
-                }
-            });
-        }
+        ntsl.cycle(ws, 30000);
     });
     ws.on('closed', function(){
         if(ws.programID){
@@ -132,6 +135,14 @@ wss.on('connection', function (ws){
             });
         }
     });
+    ws.on(":topic",  data => {
+        // Only alive programs get to run.
+        if(ws.programID != null){
+            ntsl.run({action: "topic", id: ws.programID, topic: data.topic}, ()=>{
+                ntsl.cycle(ws);
+            });
+        }
+    })
 });
 
 // Keep ws alive.

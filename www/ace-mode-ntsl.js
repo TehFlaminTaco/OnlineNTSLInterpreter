@@ -8,7 +8,7 @@ define("ace/mode/ntsl_highlight_rules",["require","exports","module","ace/lib/oo
     
         var keywordMapper = this.createKeywordMapper({
             "keyword": 
-                "with when while for if function func",
+                "with when while for if function func else in local var eval",
         }, "text", true, " ");
         
          

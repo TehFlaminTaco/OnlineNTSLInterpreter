@@ -21,3 +21,25 @@ button{
     font-family: monospace;
     cursor: pointer;
 }
+#terminal{
+    width: 100%
+}
+#terminal_holder{
+    text-align:center;
+    font-family: monospace;
+    line-height:8pt;
+    font-size:8pt;
+}
+#commandline{
+    width:336pt;
+    border:none;
+    padding:0;
+    margin:0;
+    margin-top: 2pt;
+    background-color:black;
+    color:white;
+    font-family: monospace;
+    font-size:8pt;
+}when term.topic{
+    print(topic)
+}

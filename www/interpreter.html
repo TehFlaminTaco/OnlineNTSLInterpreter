@@ -5,6 +5,7 @@
         <meta charset="utf-8"/>
         <link href="./interpreter.css" rel="stylesheet"/>
         <script src="./interpreter.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js"></script>
         <script src="./ace-mode-ntsl.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/mode-coffee.min.js"></script>
@@ -16,7 +17,9 @@
         <div id="ntsleditor"></div>
         <div id="terminal_holder">
             <button onclick="run_ntsl()">Execute</button>
-            <div id="terminal">
+            <div id="terminal"></div>
+            <div>
+                <input id="commandline" onkeyup="commandLineEntry(event)">
             </div>
         </div>
     </body>
